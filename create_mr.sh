@@ -125,6 +125,9 @@ elif [ "$ACTION" == "test" ]; then
   echo ">>> 进入源码目录: ${REPO_PATH}"
   cd "${REPO_PATH}"
 
+  echo ">>> 更新 upstream ..."
+  git fetch upstream
+
   echo ">>> 拉取 Merge Request #${MR_ID} ..."
   git fetch upstream "refs/merge-requests/${MR_ID}/head:refs/remotes/upstream/merge-requests/${MR_ID}"
 
