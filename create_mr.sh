@@ -134,6 +134,9 @@ elif [ "$ACTION" == "test" ]; then
   echo ">>> 检出 Merge Request #${MR_ID} ..."
   git checkout "merge-requests/${MR_ID}"
 
+  echo ">>> Rebase 到最新的 upstream/master ..."
+  git rebase upstream/master
+
   if [ "$COMPILE" == "true" ]; then
     echo ">>> 编译 ${REPO} ..."
     kde-builder ${REPO} --no-src --no-include-dependencies
