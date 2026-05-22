@@ -14,6 +14,8 @@ README.md
 
 - 支持 amend 单 commit 持续更新
 
+- 支持检出他人 MR 进行测试、编译
+
 - 全局命令，任意目录可用
 
 ## 安装步骤（必须按顺序执行）
@@ -100,6 +102,60 @@ create_mr amend 508438 --repo=kio
 
 ```
 
+### 测试他人的 Merge Request
+
+需要先安装 `git-extras` 包（提供 `git mr` 命令）：
+
+```bash
+
+# Debian/Ubuntu/KDE Neon
+
+sudo apt install git-extras
+
+# Fedora
+
+sudo dnf install git-extras
+
+# Arch Linux (AUR)
+
+git clone https://aur.archlinux.org/git-extras.git
+
+cd git-extras
+
+makepkg -si
+
+# Manjaro
+
+pamac build git-extras
+
+# openSUSE Tumbleweed
+
+sudo zypper install git-mr
+
+```
+
+使用示例：
+
+```bash
+
+# 检出 MR（仅检出，不编译）
+
+create_mr test 80 --repo=kio
+
+# 检出并编译
+
+create_mr test 80 --repo=kio --compile
+
+# 检出、编译并运行测试
+
+create_mr test 80 --repo=kio --compile --test
+
+# Dolphin 项目
+
+create_mr test 42 --repo=dolphin --compile
+
+```
+
 ## 支持的动作
 
 - new    从最新上游 master 创建 bug 分支
@@ -108,6 +164,18 @@ create_mr amend 508438 --repo=kio
 
 - amend  追加修改到上一个 commit，强制更新远程分支
 
+- test   检出他人的 Merge Request 进行测试（需要 git-extras）
+
+## 测试 Merge Request 流程
+
+1. 使用 `create_mr test <MR_ID> --repo=<仓库>` 检出 MR
+
+2. 编译软件：`kde-builder <项目> --no-src --no-include-dependencies`
+
+3. 运行测试：`cd ~/kde/build/kde/applications/<项目> && source prefix.sh && ctest --output-on-failure`
+
+4. 在 MR 页面报告测试结果
+
 ## 注意
 
 - 必须提前配置好 KDE GitLab 密钥和 git 用户名
@@ -115,4 +183,8 @@ create_mr amend 508438 --repo=kio
 - 所有 MR 保持单 commit，方便上游审查
 
 - 分支名自动生成：work/bug-${BUG_ID}
+
+- 测试他人 MR 时，源码目录默认为 `~/kde/src/<项目名>`
+
+- 测试他人 MR 需要先安装 `git-extras` 包
 
