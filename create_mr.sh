@@ -9,14 +9,14 @@
 #   ./create_mr.sh new <BUG_ID> --repo=kio|dolphin
 #   ./create_mr.sh push <BUG_ID> --repo=kio|dolphin
 #   ./create_mr.sh amend <BUG_ID> --repo=kio|dolphin
-#   ./create_mr.sh test <MR_ID> --repo=kio|dolphin [--compile] [--test]
+#   ./create_mr.sh test <MR_ID> --repo=kio|dolphin [--remote=<remote>] [--compile] [--test]
 #
 # 例如:
 #   ./create_mr.sh new 469598 --repo=kio
 #   ./create_mr.sh push 509162 --repo=dolphin
 #   ./create_mr.sh amend 509162 --repo=dolphin
 #   ./create_mr.sh test 80 --repo=kio
-#   ./create_mr.sh test 80 --repo=kio --compile
+#   ./create_mr.sh test 80 --repo=kio --remote=upstream --compile
 #   ./create_mr.sh test 80 --repo=kio --compile --test
 
 set -e
@@ -26,6 +26,7 @@ ID=$2
 REPO=""
 COMPILE=false
 RUN_TESTS=false
+REMOTE="upstream"
 # 你的 KDE GitLab 用户名
 USERNAME="zhangpan"
 
@@ -41,6 +42,9 @@ for arg in "$@"; do
     --compile)
       COMPILE=true
       ;;
+    --remote=*)
+      REMOTE="${arg#*=}"
+      ;;
     --test)
       RUN_TESTS=true
       ;;
@@ -52,7 +56,7 @@ if [ -z "$ID" ] || [ -z "$REPO" ]; then
   echo "  $0 new <BUG_ID> --repo=kio|dolphin"
   echo "  $0 push <BUG_ID> --repo=kio|dolphin"
   echo "  $0 amend <BUG_ID> --repo=kio|dolphin"
-  echo "  $0 test <MR_ID> --repo=kio|dolphin [--compile] [--test]"
+  echo "  $0 test <MR_ID> --repo=kio|dolphin [--remote=<remote>] [--compile] [--test]"
   exit 1
 fi
 
@@ -70,10 +74,10 @@ fi
 if [ "$ACTION" == "test" ]; then
   MR_ID=$ID
   if [ "$REPO" == "kio" ]; then
-    MR_URL="https://invent.kde.org/kde/kio/-/merge_requests/${MR_ID}"
+    MR_URL="https://invent.kde.org/frameworks/kio/-/merge_requests/${MR_ID}"
     REPO_PATH="${HOME}/kde/src/kio"
   elif [ "$REPO" == "dolphin" ]; then
-    MR_URL="https://invent.kde.org/kde/dolphin/-/merge_requests/${MR_ID}"
+    MR_URL="https://invent.kde.org/system/dolphin/-/merge_requests/${MR_ID}"
     REPO_PATH="${HOME}/kde/src/dolphin"
   else
     echo "未知仓库: $REPO"
@@ -136,8 +140,8 @@ elif [ "$ACTION" == "test" ]; then
   echo ">>> 进入源码目录: ${REPO_PATH}"
   cd "${REPO_PATH}"
 
-  echo ">>> 检出 Merge Request #${MR_ID} ..."
-  git mr ${MR_ID}
+  echo ">>> 检出 Merge Request #${MR_ID} (remote: ${REMOTE}) ..."
+  git mr ${REMOTE} ${MR_ID}
 
   if [ "$COMPILE" == "true" ]; then
     echo ">>> 编译 ${REPO} ..."
@@ -155,6 +159,7 @@ elif [ "$ACTION" == "test" ]; then
   echo "    MR 页面: ${MR_URL}"
   if [ "$COMPILE" == "false" ]; then
     echo "    提示: 使用 --compile 参数可自动编译，--test 参数可运行测试"
+    echo "          使用 --remote=<remote> 指定远程仓库（默认 upstream）"
   fi
 
 else

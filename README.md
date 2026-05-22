@@ -154,6 +154,10 @@ create_mr test 80 --repo=kio --compile --test
 
 create_mr test 42 --repo=dolphin --compile
 
+# 指定远程仓库名（默认 upstream）
+
+create_mr test 80 --repo=kio --remote=kde --compile
+
 ```
 
 ## 支持的动作
@@ -185,6 +189,8 @@ create_mr test 42 --repo=dolphin --compile
 - 分支名自动生成：work/bug-${BUG_ID}
 
 - 测试他人 MR 时，源码目录默认为 `~/kde/src/<项目名>`
+
+- 测试他人 MR 时，`--remote` 默认为 `upstream`，可指定其他远程名
 
 - 测试他人 MR 需要先安装 `git-extras` 包
 
