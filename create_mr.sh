@@ -9,14 +9,14 @@
 #   ./create_mr.sh new <BUG_ID> --repo=kio|dolphin
 #   ./create_mr.sh push <BUG_ID> --repo=kio|dolphin
 #   ./create_mr.sh amend <BUG_ID> --repo=kio|dolphin
-#   ./create_mr.sh test <MR_ID> --repo=kio|dolphin [--remote=<remote>] [--compile] [--test]
+#   ./create_mr.sh test <MR_ID> --repo=kio|dolphin [--compile] [--test]
 #
 # 例如:
 #   ./create_mr.sh new 469598 --repo=kio
 #   ./create_mr.sh push 509162 --repo=dolphin
 #   ./create_mr.sh amend 509162 --repo=dolphin
 #   ./create_mr.sh test 80 --repo=kio
-#   ./create_mr.sh test 80 --repo=kio --remote=upstream --compile
+#   ./create_mr.sh test 80 --repo=kio --compile
 #   ./create_mr.sh test 80 --repo=kio --compile --test
 
 set -e
@@ -26,7 +26,6 @@ ID=$2
 REPO=""
 COMPILE=false
 RUN_TESTS=false
-REMOTE="upstream"
 # 你的 KDE GitLab 用户名
 USERNAME="zhangpan"
 
@@ -42,9 +41,6 @@ for arg in "$@"; do
     --compile)
       COMPILE=true
       ;;
-    --remote=*)
-      REMOTE="${arg#*=}"
-      ;;
     --test)
       RUN_TESTS=true
       ;;
@@ -56,18 +52,7 @@ if [ -z "$ID" ] || [ -z "$REPO" ]; then
   echo "  $0 new <BUG_ID> --repo=kio|dolphin"
   echo "  $0 push <BUG_ID> --repo=kio|dolphin"
   echo "  $0 amend <BUG_ID> --repo=kio|dolphin"
-  echo "  $0 test <MR_ID> --repo=kio|dolphin [--remote=<remote>] [--compile] [--test]"
-  exit 1
-fi
-
-# 检查 git-extras 是否安装（test 动作需要）
-if [ "$ACTION" == "test" ] && ! command -v git-mr &> /dev/null; then
-  echo "错误: git-mr 未安装。请先安装 git-extras:"
-  echo "  Debian/Ubuntu/KDE Neon: sudo apt install git-extras"
-  echo "  Fedora: sudo dnf install git-extras"
-  echo "  Arch Linux (AUR): git clone https://aur.archlinux.org/git-extras.git && cd git-extras && makepkg -si"
-  echo "  Manjaro: pamac build git-extras"
-  echo "  openSUSE Tumbleweed: sudo zypper install git-mr"
+  echo "  $0 test <MR_ID> --repo=kio|dolphin [--compile] [--test]"
   exit 1
 fi
 
@@ -140,8 +125,11 @@ elif [ "$ACTION" == "test" ]; then
   echo ">>> 进入源码目录: ${REPO_PATH}"
   cd "${REPO_PATH}"
 
-  echo ">>> 检出 Merge Request #${MR_ID} (remote: ${REMOTE}) ..."
-  git mr ${REMOTE} ${MR_ID}
+  echo ">>> 拉取 Merge Request #${MR_ID} ..."
+  git fetch upstream "refs/merge-requests/${MR_ID}/head:refs/remotes/upstream/merge-requests/${MR_ID}"
+
+  echo ">>> 检出 Merge Request #${MR_ID} ..."
+  git checkout "merge-requests/${MR_ID}"
 
   if [ "$COMPILE" == "true" ]; then
     echo ">>> 编译 ${REPO} ..."
@@ -159,7 +147,6 @@ elif [ "$ACTION" == "test" ]; then
   echo "    MR 页面: ${MR_URL}"
   if [ "$COMPILE" == "false" ]; then
     echo "    提示: 使用 --compile 参数可自动编译，--test 参数可运行测试"
-    echo "          使用 --remote=<remote> 指定远程仓库（默认 upstream）"
   fi
 
 else

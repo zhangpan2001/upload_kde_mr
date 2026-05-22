@@ -104,38 +104,6 @@ create_mr amend 508438 --repo=kio
 
 ### 测试他人的 Merge Request
 
-需要先安装 `git-extras` 包（提供 `git mr` 命令）：
-
-```bash
-
-# Debian/Ubuntu/KDE Neon
-
-sudo apt install git-extras
-
-# Fedora
-
-sudo dnf install git-extras
-
-# Arch Linux (AUR)
-
-git clone https://aur.archlinux.org/git-extras.git
-
-cd git-extras
-
-makepkg -si
-
-# Manjaro
-
-pamac build git-extras
-
-# openSUSE Tumbleweed
-
-sudo zypper install git-mr
-
-```
-
-使用示例：
-
 ```bash
 
 # 检出 MR（仅检出，不编译）
@@ -154,10 +122,6 @@ create_mr test 80 --repo=kio --compile --test
 
 create_mr test 42 --repo=dolphin --compile
 
-# 指定远程仓库名（默认 upstream）
-
-create_mr test 80 --repo=kio --remote=kde --compile
-
 ```
 
 ## 支持的动作
@@ -168,7 +132,7 @@ create_mr test 80 --repo=kio --remote=kde --compile
 
 - amend  追加修改到上一个 commit，强制更新远程分支
 
-- test   检出他人的 Merge Request 进行测试（需要 git-extras）
+- test   检出他人的 Merge Request 进行测试
 
 ## 测试 Merge Request 流程
 
@@ -189,8 +153,4 @@ create_mr test 80 --repo=kio --remote=kde --compile
 - 分支名自动生成：work/bug-${BUG_ID}
 
 - 测试他人 MR 时，源码目录默认为 `~/kde/src/<项目名>`
-
-- 测试他人 MR 时，`--remote` 默认为 `upstream`，可指定其他远程名
-
-- 测试他人 MR 需要先安装 `git-extras` 包
 
